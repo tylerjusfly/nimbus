@@ -76,13 +76,13 @@ export function MainNav() {
                 <SidebarMenuButton
                   className="justify-start"
                   size="sm"
-                  variant="ghost"
+                  variant="default"
                   tooltip={label.name}
                 >
                   <span
                     className={`h-2 w-2 rounded-full ${label.color}`}
                   ></span>
-                  <span className="capitalize">{label.name}</span>
+                  <span className="capitalize">{label.name}rr</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
