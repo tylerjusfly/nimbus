@@ -76,9 +76,10 @@ export const EmailProvider = ({ children }: { children: ReactNode }) => {
     );
   }, [user, firestore, imapAccountId]);
 
-  const { data: allEmails = [], isLoading: emailsLoading } = useCollection<Email>(emailsQuery);
+  const { data: allEmails, isLoading: emailsLoading } = useCollection<Email>(emailsQuery);
 
   const emails = useMemo(() => {
+      if (!allEmails) return [];
       return allEmails.filter(email => email.category !== 'trash');
   }, [allEmails]);
 
@@ -97,14 +98,14 @@ export const EmailProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const toggleRead = (id: string) => {
-    const email = allEmails.find((e) => e.id === id);
+    const email = allEmails?.find((e) => e.id === id);
     if (email) {
       updateEmail(id, { isRead: !email.isRead });
     }
   };
 
   const getEmailById = (id: string) => {
-    return allEmails.find((email) => email.id === id);
+    return allEmails?.find((email) => email.id === id);
   };
   
   const contextValue = useMemo(() => ({
