@@ -6,6 +6,7 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster';
 import { EmailProvider } from '@/providers/email-provider';
 import { MainNav } from '@/components/main-nav';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -27,17 +28,19 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <EmailProvider>
-          <SidebarProvider>
-            <Sidebar
-              collapsible="icon"
-              className="group-data-[variant=sidebar]:border-r-0"
-            >
-              <MainNav />
-            </Sidebar>
-            <SidebarInset>{children}</SidebarInset>
-          </SidebarProvider>
-        </EmailProvider>
+        <FirebaseClientProvider>
+          <EmailProvider>
+            <SidebarProvider>
+              <Sidebar
+                collapsible="icon"
+                className="group-data-[variant=sidebar]:border-r-0"
+              >
+                <MainNav />
+              </Sidebar>
+              <SidebarInset>{children}</SidebarInset>
+            </SidebarProvider>
+          </EmailProvider>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

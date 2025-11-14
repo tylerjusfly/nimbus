@@ -147,8 +147,8 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "google.com",
+      "microsoft.com"
     ]
   },
   "firestore": {
@@ -214,6 +214,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, Clarity of Intent, and support secure list operations (QAPs). User data and IMAP account details are stored under the `/users/{userId}` path, ensuring path-based ownership.  Email messages are stored in a subcollection `/users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId}` to allow for easy querying and management of emails associated with a specific IMAP account. The `imapAccountId` field within the Email document is essential for authorization and efficiently retrieving emails for a particular IMAP account. All access control is based on the user's `uid` and path-based ownership, avoiding the need for `get()` calls in security rules, thus fulfilling Authorization Independence.  No global roles are used, as authorization is handled through path-based ownership. Homogeneous security posture is achieved as all documents within a collection have the same access control requirements."
+    "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, Clarity of Intent, and support secure list operations (QAPs). User data and IMAP account details are stored under the `/users/{userId}` path, ensuring path-based ownership.  Email messages are stored in a subcollection `/users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId}` to allow for easy querying and management of emails associated with a specific IMAP account. The `imapAccountId` field within the Email document is essential for authorization and efficiently retrieving emails for a particular IMAP account. All access control is based on the user's `uid` and path-based ownership, aget()` calls in security rules, thus fulfilling Authorization Independence.  No global roles are used, as authorization is handled through path-based ownership. Homogeneous security posture is achieved as all documents within a collection have the same access control requirements."
   }
 }

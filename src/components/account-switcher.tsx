@@ -11,12 +11,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronsUpDown, LogOut, Settings, User } from 'lucide-react';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { ChevronsUpDown, LogOut, Settings, User as UserIcon } from 'lucide-react';
+import Link from 'next/link';
 import { useSidebar } from './ui/sidebar';
 
 export function AccountSwitcher() {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
+  const auth = useAuth();
+  const { user } = useUser();
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+  };
+
+  if (!user) {
+    return (
+      <div className="p-2">
+        <Button asChild className="w-full">
+          <Link href="/setup">Sign In</Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,18 +46,23 @@ export function AccountSwitcher() {
           aria-label="Select account"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage
-              src="https://picsum.photos/seed/10/40/40"
-              alt="User"
-              data-ai-hint="woman portrait"
-            />
-            <AvatarFallback>U</AvatarFallback>
+            {user.photoURL && (
+              <AvatarImage
+                src={user.photoURL}
+                alt={user.displayName ?? 'User'}
+              />
+            )}
+            <AvatarFallback>
+              {user.displayName?.charAt(0).toUpperCase() ||
+                user.email?.charAt(0).toUpperCase() ||
+                'U'}
+            </AvatarFallback>
           </Avatar>
           {!isCollapsed && (
             <>
               <div className="grow text-left">
-                <p className="text-sm font-medium">User</p>
-                <p className="text-xs text-muted-foreground">user@nimbus.com</p>
+                <p className="text-sm font-medium">{user.displayName}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
               <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
             </>
@@ -52,17 +77,19 @@ export function AccountSwitcher() {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
+          <DropdownMenuItem disabled>
+            <UserIcon className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+          <DropdownMenuItem asChild>
+            <Link href="/setup">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
