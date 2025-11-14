@@ -12,7 +12,7 @@ export default function InboxPage() {
   const { emails, isLoading } = useEmails();
   const [search, setSearch] = useState('');
 
-  const inboxEmails = emails.filter((email) => email.category === 'inbox');
+  const inboxEmails = emails.filter((email) => !email.isArchived);
 
   const filteredEmails = inboxEmails.filter(
     (email) =>
