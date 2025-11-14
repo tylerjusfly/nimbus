@@ -25,7 +25,7 @@ export function MainNav() {
   const { emails } = useEmails();
 
   const inboxCount = emails.filter(
-    (e) => e.category === 'inbox' && !e.read
+    (e) => !e.isArchived && !e.isRead,
   ).length;
 
   return (
