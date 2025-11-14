@@ -33,7 +33,7 @@ export default function SetupPage() {
         const microsoftProvider = new OAuthProvider('microsoft.com');
         await signInWithPopup(auth, microsoftProvider);
       }
-      router.push('/');
+      // The useEffect hook above will handle the redirect once `user` is populated.
     } catch (error) {
       console.error('Sign-in error:', error);
     }
