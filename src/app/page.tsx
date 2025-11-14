@@ -6,9 +6,10 @@ import { EmailList } from '@/components/email-list';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InboxPage() {
-  const { emails } = useEmails();
+  const { emails, isLoading } = useEmails();
   const [search, setSearch] = useState('');
 
   const inboxEmails = emails.filter((email) => email.category === 'inbox');
@@ -16,7 +17,7 @@ export default function InboxPage() {
   const filteredEmails = inboxEmails.filter(
     (email) =>
       email.subject.toLowerCase().includes(search.toLowerCase()) ||
-      email.from.name.toLowerCase().includes(search.toLowerCase()) ||
+      email.sender.toLowerCase().includes(search.toLowerCase()) ||
       email.body.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -37,7 +38,16 @@ export default function InboxPage() {
         </div>
       </header>
       <main className="flex-1 overflow-auto">
-        <EmailList emails={filteredEmails} />
+        {isLoading ? (
+          <div className="p-4 space-y-4">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+        ) : (
+          <EmailList emails={filteredEmails} />
+        )}
       </main>
     </div>
   );

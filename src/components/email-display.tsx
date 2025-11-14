@@ -5,17 +5,16 @@ import { useRouter } from 'next/navigation';
 import {
   Archive,
   ArrowLeft,
-  ChevronDown,
   Clock,
-  Mail,
   MoreVertical,
   Trash2,
+  Mail,
 } from 'lucide-react';
 
 import type { Email } from '@/lib/types';
 import { labels as allLabels } from '@/lib/data';
 import { useEmails } from '@/providers/email-provider';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -57,7 +56,7 @@ export function EmailDisplay({ email }: EmailDisplayProps) {
 
   const handleToggleRead = () => {
     toggleRead(email.id);
-    toast({ title: email.read ? 'Marked as unread.' : 'Marked as read.' });
+    toast({ title: email.isRead ? 'Marked as unread.' : 'Marked as read.' });
   };
 
   return (
@@ -115,7 +114,7 @@ export function EmailDisplay({ email }: EmailDisplayProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleToggleRead}>
                   <Mail className="mr-2 h-4 w-4" />
-                  {email.read ? 'Mark as unread' : 'Mark as read'}
+                  {email.isRead ? 'Mark as unread' : 'Mark as read'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -125,20 +124,19 @@ export function EmailDisplay({ email }: EmailDisplayProps) {
           <div className="flex items-start p-4 md:p-6">
             <div className="flex items-start gap-4 text-sm">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={email.from.avatar} alt={email.from.name} />
                 <AvatarFallback>
-                  {email.from.name.charAt(0).toUpperCase()}
+                  {email.sender.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid gap-1">
-                <div className="font-semibold">{email.from.name}</div>
-                <div className="line-clamp-1 text-xs text-muted-foreground">
-                  {email.from.email}
+                <div className="font-semibold">{email.sender}</div>
+                 <div className="line-clamp-1 text-xs text-muted-foreground">
+                  {email.recipients.join(', ')}
                 </div>
               </div>
             </div>
             <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-              {format(new Date(email.date), 'PPpp')}
+              {format(new Date(email.sentDate), 'PPpp')}
               <Clock className="h-3 w-3" />
             </div>
           </div>

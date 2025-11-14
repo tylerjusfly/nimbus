@@ -13,8 +13,8 @@ export default function EmailPage({ params }: { params: { id: string } }) {
   const email = getEmailById(params.id);
 
   useEffect(() => {
-    if (email && !email.read) {
-      updateEmail(params.id, { read: true });
+    if (email && !email.isRead) {
+      updateEmail(params.id, { isRead: true });
     }
   }, [email, params.id, updateEmail]);
 
@@ -23,15 +23,17 @@ export default function EmailPage({ params }: { params: { id: string } }) {
     // Redirect if email not found after a delay
     useEffect(() => {
         const timer = setTimeout(() => {
-            router.push('/');
+            if (!email) { // Re-check if email is still not found
+                router.push('/');
+            }
         }, 2000);
         return () => clearTimeout(timer);
-    }, [router]);
+    }, [router, email]);
 
     return (
-        <div className="p-8">
-            <Skeleton className="h-8 w-3/4 mb-4" />
-            <Skeleton className="h-4 w-1/4 mb-8" />
+        <div className="p-8 space-y-4">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-4 w-1/4" />
             <Skeleton className="h-48 w-full" />
         </div>
     );

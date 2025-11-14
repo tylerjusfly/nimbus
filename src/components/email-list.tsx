@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import type { Email } from '@/lib/types';
 import { useEmails } from '@/providers/email-provider';
 import { labels as allLabels } from '@/lib/data';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Archive, Trash2 } from 'lucide-react';
 import {
@@ -56,20 +56,19 @@ export function EmailList({ emails }: EmailListProps) {
               href={`/email/${email.id}`}
               className={cn(
                 'group flex cursor-pointer items-start gap-4 border-b p-4 transition-colors hover:bg-card',
-                !email.read ? 'bg-secondary/50' : 'bg-transparent'
+                !email.isRead ? 'bg-secondary/50' : 'bg-transparent'
               )}
             >
               <div
                 className={cn(
                   'mt-1 h-2 w-2 shrink-0 rounded-full',
-                  !email.read ? 'bg-primary' : 'bg-transparent'
+                  !email.isRead ? 'bg-primary' : 'bg-transparent'
                 )}
-                aria-label={!email.read ? 'Unread' : 'Read'}
+                aria-label={!email.isRead ? 'Unread' : 'Read'}
               />
               <Avatar className="h-8 w-8">
-                <AvatarImage src={email.from.avatar} alt={email.from.name} />
                 <AvatarFallback>
-                  {email.from.name.charAt(0).toUpperCase()}
+                  {email.sender.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 overflow-hidden">
@@ -77,18 +76,18 @@ export function EmailList({ emails }: EmailListProps) {
                   <p
                     className={cn(
                       'truncate text-sm font-medium',
-                      !email.read && 'font-bold'
+                      !email.isRead && 'font-bold'
                     )}
                   >
-                    {email.from.name}
+                    {email.sender}
                   </p>
                   <time
                     className={cn(
                       'ml-4 shrink-0 text-xs text-muted-foreground',
-                      !email.read && 'font-semibold text-foreground'
+                      !email.isRead && 'font-semibold text-foreground'
                     )}
                   >
-                    {formatDistanceToNow(new Date(email.date), {
+                    {formatDistanceToNow(new Date(email.sentDate), {
                       addSuffix: true,
                     })}
                   </time>
@@ -96,13 +95,13 @@ export function EmailList({ emails }: EmailListProps) {
                 <p
                   className={cn(
                     'truncate text-sm',
-                    !email.read ? 'font-semibold' : 'text-muted-foreground'
+                    !email.isRead ? 'font-semibold' : 'text-muted-foreground'
                   )}
                 >
                   {email.subject}
                 </p>
                 <div className="mt-2 flex items-center gap-2">
-                  {email.labels.map((labelName) => {
+                  {email.labels.map((labelName: string) => {
                     const labelInfo = allLabels.find(l => l.name === labelName);
                     return (
                     <span

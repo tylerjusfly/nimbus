@@ -1,14 +1,14 @@
-export interface Email {
+import { type DocumentData } from 'firebase/firestore';
+
+export interface Email extends DocumentData {
   id: string;
-  from: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
+  sender: string;
+  recipients: string[];
   subject: string;
   body: string;
-  date: string;
-  read: boolean;
+  sentDate: string; // ISO 8601 date string
+  isRead: boolean;
+  isArchived: boolean;
   labels: string[];
   category: 'inbox' | 'archived' | 'trash';
 }
