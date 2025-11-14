@@ -82,7 +82,7 @@ export function MainNav() {
                   <span
                     className={`h-2 w-2 rounded-full ${label.color}`}
                   ></span>
-                  <span className="capitalize">{label.name}rr</span>
+                  <span className="capitalize">{label.name}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
