@@ -37,27 +37,29 @@ export function MainNav() {
       <SidebarContent className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/" legacyBehavior passHref>
-              <SidebarMenuButton
-                isActive={pathname === '/'}
-                tooltip="Inbox"
-              >
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === '/'}
+              tooltip="Inbox"
+            >
+              <Link href="/">
                 <Inbox />
                 <span>Inbox</span>
                 {inboxCount > 0 && <SidebarMenuBadge>{inboxCount}</SidebarMenuBadge>}
-              </SidebarMenuButton>
-            </Link>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="/archived" legacyBehavior passHref>
-              <SidebarMenuButton
-                isActive={pathname === '/archived'}
-                tooltip="Archived"
-              >
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === '/archived'}
+              tooltip="Archived"
+            >
+              <Link href="/archived">
                 <Archive />
                 <span>Archived</span>
-              </SidebarMenuButton>
-            </Link>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
@@ -91,12 +93,12 @@ export function MainNav() {
       <SidebarFooter className="border-t">
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/setup" legacyBehavior passHref>
-              <SidebarMenuButton isActive={pathname === '/setup'} tooltip="Setup">
+            <SidebarMenuButton asChild isActive={pathname === '/setup'} tooltip="Setup">
+              <Link href="/setup">
                 <Settings />
                 <span>Setup</span>
-              </SidebarMenuButton>
-            </Link>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
         <Separator className="my-1" />
