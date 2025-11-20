@@ -1,0 +1,219 @@
+{
+  "entities": {
+    "Email": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Email",
+      "type": "object",
+      "description": "Represents an email message.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Email entity."
+        },
+        "imapAccountId": {
+          "type": "string",
+          "description": "Reference to ImapAccount. (Relationship: ImapAccount 1:N Email)"
+        },
+        "sender": {
+          "type": "string",
+          "description": "Email address of the sender."
+        },
+        "recipients": {
+          "type": "array",
+          "description": "Email addresses of the recipients.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject line of the email."
+        },
+        "body": {
+          "type": "string",
+          "description": "Content of the email (HTML or plain text)."
+        },
+        "sentDate": {
+          "type": "string",
+          "description": "Date and time when the email was sent.",
+          "format": "date-time"
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Indicates whether the email has been read."
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "Indicates whether the email is archived."
+        },
+        "labels": {
+          "type": "array",
+          "description": "Labels associated with the email.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "imapAccountId",
+        "sender",
+        "recipients",
+        "subject",
+        "body",
+        "sentDate",
+        "isRead",
+        "isArchived",
+        "labels"
+      ]
+    },
+    "ImapAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ImapAccount",
+      "type": "object",
+      "description": "Represents a user's IMAP account.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ImapAccount entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N ImapAccount)"
+        },
+        "emailAddress": {
+          "type": "string",
+          "description": "Email address of the IMAP account.",
+          "format": "email"
+        },
+        "imapServer": {
+          "type": "string",
+          "description": "IMAP server address."
+        },
+        "imapPort": {
+          "type": "number",
+          "description": "IMAP server port."
+        },
+        "oauthToken": {
+          "type": "string",
+          "description": "OAuth token for accessing the IMAP account."
+        },
+        "refreshToken": {
+          "type": "string",
+          "description": "Refresh token for obtaining new OAuth tokens."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "emailAddress",
+        "imapServer",
+        "imapPort",
+        "oauthToken",
+        "refreshToken"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "google.com",
+      "microsoft.com"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "user",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile data. User's `uid` from authentication is used as the `userId`. Only the authenticated user can read/write their own profile data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/imap_accounts/{imapAccountId}",
+        "definition": {
+          "entityName": "ImapAccount",
+          "schema": {
+            "$ref": "#/backend/entities/ImapAccount"
+          },
+          "description": "Stores IMAP account details for a user. Only the authenticated user can read/write their own IMAP account data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Authentication UID."
+            },
+            {
+              "name": "imapAccountId",
+              "description": "The unique identifier for the IMAP account."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId}",
+        "definition": {
+          "entityName": "Email",
+          "schema": {
+            "$ref": "#/backend/entities/Email"
+          },
+          "description": "Stores email messages associated with a specific IMAP account for a user. The `imapAccountId` is denormalized, effectively creating path based access. Only the authenticated user can read/write their own email data. The `imapAccountId` property in the Email document enables listing emails by `imapAccountId` (QAP).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Authentication UID."
+            },
+            {
+              "name": "imapAccountId",
+              "description": "The unique identifier for the IMAP account."
+            },
+            {
+              "name": "emailId",
+              "description": "The unique identifier for the email."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, Clarity of Intent, and support secure list operations (QAPs). User data and IMAP account details are stored under the `/users/{userId}` path, ensuring path-based ownership.  Email messages are stored in a subcollection `/users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId}` to allow for easy querying and management of emails associated with a specific IMAP account. The `imapAccountId` field within the Email document is essential for authorization and efficiently retrieving emails for a particular IMAP account. All access control is based on the user's `uid` and path-based ownership, aget()` calls in security rules, thus fulfilling Authorization Independence.  No global roles are used, as authorization is handled through path-based ownership. Homogeneous security posture is achieved as all documents within a collection have the same access control requirements."
+  }
+}

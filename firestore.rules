@@ -1,0 +1,93 @@
+/**
+ * @fileoverview Firestore Security Rules for the IMAP Email Application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model.  Each user can only
+ * access their own data. All data is nested under /users/{userId}, and
+ * access is controlled using the `isOwner(userId)` helper function.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profile data.
+ * - /users/{userId}/imap_accounts/{imapAccountId}: Stores IMAP account details for a user.
+ * - /users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId}: Stores email messages associated with a specific IMAP account.
+ *
+ * Key Security Decisions:
+ * - Users can only read/write their own data.
+ * - Listing all users is disallowed.
+ * - No global admin roles are used; authorization is based on path-based ownership.
+ * - The `imapAccountId` field is denormalized in the Email document to simplify list operations and improve security rule efficiency.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the request is made by the owner of the resource.
+     * @param {string} userId The user ID to compare against the request's auth UID.
+     * @return {boolean} True if the user is the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the request is made by the owner of the resource and the resource exists.
+     * @param {string} userId The user ID to compare against the resource's userId
+     * @return {boolean} True if the user is the owner and the resource exists.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource.data != null;
+    }
+
+    /**
+     * @description Security rules for the /users/{userId} collection.
+     * @path /users/{userId}
+     * @allow (create) User with UID 'user123' creates their profile with matching userId.
+     * @deny (create) User with UID 'user123' tries to create a profile for 'user456'.
+     * @allow (get) User with UID 'user123' reads their own profile.
+     * @deny (get) User with UID 'user123' tries to read the profile of 'user456'.
+     * @principle Enforces user ownership; only the authenticated user can access their own profile data.
+     */
+    match /users/{userId} {
+      allow create: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Security rules for the /users/{userId}/imap_accounts/{imapAccountId} collection.
+     * @path /users/{userId}/imap_accounts/{imapAccountId}
+     * @allow (create) User with UID 'user123' creates an IMAP account under their profile.
+     * @deny (create) User with UID 'user123' tries to create an IMAP account under 'user456' profile.
+     * @allow (get) User with UID 'user123' reads their own IMAP account details.
+     * @deny (get) User with UID 'user123' tries to read IMAP account details of 'user456'.
+     * @principle Enforces user ownership; only the authenticated user can access their own IMAP account data.
+     */
+    match /users/{userId}/imap_accounts/{imapAccountId} {
+      allow create: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Security rules for the /users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId} collection.
+     * @path /users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId}
+     * @allow (create) User with UID 'user123' creates an email under their IMAP account.
+     * @deny (create) User with UID 'user123' tries to create an email under 'user456' IMAP account.
+     * @allow (get) User with UID 'user123' reads their own email.
+     * @deny (get) User with UID 'user123' tries to read an email of 'user456'.
+     * @principle Enforces user ownership; only the authenticated user can access their own email data.
+     */
+    match /users/{userId}/imap_accounts/{imapAccountId}/emails/{emailId} {
+      allow create: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
